@@ -12,15 +12,24 @@ const CriarMemoria = () => {
     const  [imagens, setImagens] = useState([]);
     const [alertaVisivel, setAlertaVisivel] = useState(false);
 
-    const adicionarImagem = (event) => {
+    const converterParaBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
+    const adicionarImagem = async (event) => {
         const arquivos = Array.from(event.target.files);
-
         if (arquivos.length > 0) {
-            const novasImagens = arquivos.map((file) => URL.createObjectURL(file))
-            setImagens((prevImagens) => [...prevImagens,...novasImagens])
-
+            const novasImagens = await Promise.all(arquivos.map(converterParaBase64));
+            setImagens((prevImagens) => [...prevImagens, ...novasImagens]);
         }
-    }
+    };
+
+
 
         const Submit = async (event) => {
             event.preventDefault();
